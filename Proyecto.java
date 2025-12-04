@@ -16,11 +16,11 @@ public class Proyecto {
     static final String rojo = "\u001B[31m";
     static final String verde = "\u001B[32m";
     static final String morado = "\u001B[35m";
-    static final String reset = "\u001B[0m";
+    static final String marron = "\u001B[33m";
+    static final String cian = "\u001B[36m";
+    static final String reset = "\u001B[97m";
 
     static int turno =0;
-
-    //Variables inventario
 
 
     //Variables jugador
@@ -28,9 +28,9 @@ public class Proyecto {
     static int vida_jug = 100;
     static boolean tarde = true;
     static Object inventario [][] = {
-            {"Mapa", "Balas"}, //objeto
-            {false, true}, //¿tiene el objeto?
-            {0, 10,} //cantidad
+            {"Mapa", "Balas", "Vendas"}, //objeto
+            {false, true, true}, //¿tiene el objeto?
+            {0, 10, 5} //cantidad
     };
     static Object armas[][] = {
             {"percha","barra de metal","martillo","pala","taladro"}, //arma
@@ -38,13 +38,16 @@ public class Proyecto {
             {false, false, false, false, false} //¿tiene el arma?
     };
     static int daño_arma = 0;
-
+    static Object compañeros[][] = {
+            {"Encapuchado","Bill"},
+            {false, false},
+    };
     //Variables enemigos
     static Object enemigos [][]= {
             {"Zombie", "Zombie blindado", "Zomblin", "persona", "encapuchado"}, //tipo enemigo
             {100, 150, 75, 125, 175}, //vida enemigo
             {20, 30, 10, 25, 30}, // daño base enemigo
-            {700,800,500, 650, 500}, //tiempo de esquiva
+            {900,1000,700, 850, 700}, //tiempo de esquiva
     };
     static int indice = 0;
     static String tipo_e = "0";
@@ -52,15 +55,25 @@ public class Proyecto {
     static int daño_e = 0;
     static int tiempo_esq = 0;
 
-    static boolean puebloLlegar = false;
+    //Variables escenario
+    static Object armasMesa[][] = {
+            {"Martillo", "Pala", "Taladro"},
+            {true, true, true},
+    };
 
+    static boolean militaresLlegar = false;
+    static boolean puebloLlegar = false;
+    static  boolean tiendaLlegar = false;
+    static boolean edificioLlegar = false;
+    static boolean graneroLlegar = false;
+    static boolean encapuchadoVisto = false;
 
 
 
     public static void main(String[] args) {
-        System.out.println("1. Quedarte en la ciudad");
-        System.out.println("2. Irte al bosque");
-        System.out.println("3. Buscar ayuda");
+        imprimir("1. Quedarte en la ciudad");
+        imprimir("2. Irte al bosque");
+        imprimir("3. Buscar ayuda");
         opcion = scan(1,2,3);
 
             switch (opcion) {
@@ -83,10 +96,10 @@ public class Proyecto {
 
     static int scan(int a){
             while(true) {
-                System.out.println("Pulsa 1");
+                imprimir("Pulsa 1");
                 if (sc.hasNextInt()) {
                     opcion = sc.nextInt();
-                    if (opcion >= a && opcion <= a) {
+                    if (opcion == a) {
                         return opcion;
                     }
                 }
@@ -97,7 +110,7 @@ public class Proyecto {
     }
     static int scan(int a, int b){
         while(true) {
-            System.out.println("Pulsa 1-2");
+            imprimir("Pulsa 1-2");
             if (sc.hasNextInt()) {
                 opcion = sc.nextInt();
                 if (opcion >= a && opcion <= b) {
@@ -111,7 +124,7 @@ public class Proyecto {
     }
     static int scan(int a, int b, int c){
         while(true) {
-            System.out.println("Pulsa 1-3");
+            imprimir("Pulsa 1-3");
             if (sc.hasNextInt()) {
                 opcion = sc.nextInt();
                 if (opcion >= a && opcion <= c) {
@@ -125,7 +138,7 @@ public class Proyecto {
     }
     static int scan(int a, int b, int c, int d){
         while(true) {
-            System.out.println("Pulsa 1-4");
+            imprimir("Pulsa 1-4");
             if (sc.hasNextInt()) {
                 opcion = sc.nextInt();
                 if (opcion >= a && opcion <= d) {
@@ -138,10 +151,9 @@ public class Proyecto {
         }
     }
 
-
     static char scan_char(){
         while(true) {
-            System.out.println("Introduce una letra");
+            imprimir("Introduce una letra");
             if (sc.hasNext()){
                 char a = sc.next().charAt(0);
                 if (Character.isLetter(a)) {
@@ -236,195 +248,234 @@ public class Proyecto {
     static void ciudad() {
         cinematica("ciudad");
 
-        System.out.println("1. Tienda");
-        System.out.println("2. Casa");
-        System.out.println("3. Granero");
-        System.out.println("4. Edificio");
+        imprimir("1. Tienda");
+        imprimir("2. Casa");
+        imprimir("3. Granero");
+        imprimir("4. Edificio");
         opcion = scan(1,2,3,4);
         if (opcion == 1) {
             tienda();
         } else if (opcion == 2) {
             cinematica("casa");
-            System.out.println("Buscas una casa y te encuentras con gente");
-            System.out.println("1. Continuar");
+            imprimir("Buscas una casa y te encuentras con gente");
             opcion = scan(1);
             if (opcion == 1) {
-                System.out.println(verde+"Deciden aceptarte y vives con ellos"+reset);
+                imprimir(verde+"Deciden aceptarte y vives con ellos"+reset);
                 armas[2][1]=true;
                 pueblo();
             }
         } else if (opcion == 3) {
-            cinematica("granero");
-            System.out.println("Vas al granero ");
-            System.out.println("1. Martillo");
-            System.out.println("2. Pala");
-            System.out.println("3. Taladro");
-            opcion = scan(1,2,3);
+            if(graneroLlegar == false) {
+                graneroLlegar = true;
+                cinematica("granero");
+                imprimir("Vas al granero ");
+                imprimir("1. Martillo");
+                imprimir("2. Pala");
+                imprimir("3. Taladro");
+                opcion = scan(1, 2, 3);
                 if (opcion == 1) {
                     cinematica("martillo");
-                    armas[2][2] = true;
-                    if((boolean)armas[2][2]==true) {
-                        System.out.println(rojo + "mueres" + reset);
+                    equipar("martillo");
+                    armasMesa[1][0] = false;
+                    if ((boolean) armas[2][2] == true) {
+                        combate("zombie");
+                        bosque();
+                        return;
                     }
-                }
-                else if (opcion == 2) {
+                } else if (opcion == 2) {
                     cinematica("pala");
-                    armas[2][3] = true;
-                    if((boolean)armas[2][3]==true) {
-                        System.out.println(verde + "sobrevives" + reset);
+                    equipar("pala");
+                    armasMesa[1][1] = false;
+                    if ((boolean) armas[2][3] == true) {
+                        combate("zombie");
+                        bosque();
+                        return;
                     }
-                }
-                else if (opcion == 3) {
+                } else if (opcion == 3) {
                     cinematica("taladro");
-                    armas[2][4] = true;
-                    if((boolean)armas[2][4]==true) {
-                        System.out.println(rojo + "mueres" + reset);
+                    equipar("taladro");
+                    armasMesa[1][2] = false;
+                    if ((boolean) armas[2][4] == true) {
+                        imprimir(rojo + "Intentas atacar con el taladro pero al intentar taladrarle la cabeza te das cuenta de que no funciona. Despues de un forcejeo mueres");
+                        System.exit(0);
                     }
                 }
-        } else if (opcion == 4) {
-            cinematica("edificio");
-            System.out.println("Ves un edificio a lo lejos y subes hasta la azotea");
-            System.out.println("1. Continuar");
-            System.out.println("Te encuentras con un encapuchado");
-            if(ahorcado()){
-                System.out.println("Te propone ser amigos");
-                System.out.println("1. Aceptar");
-                System.out.println("2. Combatir");
-                opcion = scan(1,2);
-                if(opcion == 1){
-                    System.out.println(verde+"Ahora sois amigos"+reset);
-                    saqueador=true;
-                    System.out.println(rojo+"");
-                }
-                else if(opcion == 2){
-                    combate("encapuchado");
-                }
-            }else{
-                System.out.println(rojo+"El encapuchado te mata"+reset);
             }
+            if(graneroLlegar == true) {
+                imprimir("Vuelves al granero de antes. Todavía están las herramientas");
+                for(int i=0; i<armasMesa[0].length;i++){
+                    if((boolean)armasMesa[1][i]==true){
+                        imprimir(i+1+". "+armasMesa[0][i]);
+                    }
+                }
+                opcion = scan(1, 2, 3);
+                if (opcion == 1&&(boolean)armasMesa[1][0]==true){
+                    equipar("martillo");
+                }
+                if (opcion == 1&&(boolean)armasMesa[1][0]==false){
+                    imprimir("Decides continuar con el martillo.");
+                }
+                if (opcion == 2&&(boolean)armasMesa[1][1]==true){
+                    equipar("pala");
+                }
+                if (opcion == 1&&(boolean)armasMesa[1][1]==false){
+                    imprimir("Decides continuar con la pala.");
+                }
+                if(opcion == 3&&(boolean)armasMesa[1][2]==true){
+                    imprimir("Te das cuenta de que el taladro no tenia batería por lo que tras buscar un rato encuentras una y se la pones a la herramienta.");
+                    equipar("taladro");
+                }
+            }
+        } else if (opcion == 4) {
+            edificio();
         }
     }
 
     static void bosque(){
         cinematica("bosque");
 
-        System.out.println("1. Coche");
-        System.out.println("2. Edificio");
-        System.out.println("3. Militares");
+        imprimir("1. Coche");
+        imprimir("2. Edificio");
+        imprimir("3. Militares");
         opcion = scan(1,2,3);
         if (opcion == 1) {
             cinematica("coche");
-            System.out.println("Decides puentear el coche");
+            imprimir("Decides puentear el coche");
             combate("zombie");
-            System.out.println("Te encuentras a un grupo de gente");
+            imprimir("Te encuentras a un grupo de gente");
             opcion = scan(1);
             sc.nextLine();
             if (opcion == 1) {
-                System.out.println(verde+"Deciden aceptarte y vives con ellos"+reset);
+                imprimir(verde+"Deciden aceptarte y vives con ellos"+reset);
                     pueblo();
             }
         }
         else if (opcion == 2) {
-            cinematica("edificio");
-            System.out.println("Ves un edificio a lo lejos y subes hasta la azotea");
-            System.out.println("1. Continuar");
-            System.out.println("Te encuentras con un encapuchado");
-            if(ahorcado()){
-                System.out.println("Te propone ser amigos");
-                System.out.println("1. Aceptar");
-                System.out.println("2. Combatir");
-                opcion = scan(1,2);
-                if(opcion == 1){
-                    System.out.println(verde+"Ahora sois amigos"+reset);
-                    saqueador=true;
-                    System.out.println(rojo+"");
-                }
-                else if(opcion == 2){
-                    combate("zombie");
-                }
-            }else{
-                System.out.println(rojo+"El encapuchado te mata"+reset);
-            }
+            edificio();
         } else if (opcion == 3) {
             cinematica("campamento");
-            System.out.println("1. Continuar");
+            if((boolean)armas[2][3]==true){
+                imprimir("Encuentras una caja medio enterrada. Usas tu pala");
+                obtener("balas",5);
+                obtener("vendas",3);
+            }
+            else{
+                imprimir("Ves algo medio enterrado pero no tienes una pala.");
+            }
             opcion = scan(1);
             if (opcion == 1) {
                 cinematica("campamento");
-                System.out.println(rojo + "Te acercas a los militares y te disparan" + reset);
+                militares();
             }
         }
     }
 
     static void ayuda(){
         cinematica("bosque");
-        System.out.println("Estas en el bosque y te encuentras un mapa, ¿lo coges?");
-        System.out.println("1. Coger el mapa");
-        System.out.println("2. Dejar el mapa");
+        imprimir("Llevas andando un rato cuando te encuentras el cadaver de un militar junto a un mapa ¿que haces?");
+        imprimir("1. Coger el mapa");
+        imprimir("2. Dejar el mapa");
         opcion = scan(1,2);
         if (opcion == 1) {
-            inventario[1][0] = true;
-            inventario[2][0] = 1;
+            obtener("mapa",1);
             if((boolean)inventario[1][0]==true) {
-                System.out.println("Coges el mapa");
-                System.out.println("Sigues el mapa y te encuentras un campamento militar");
-                System.out.println("1. Continuar");
+                imprimir("Te agachas a coger el mapa, y al revisarlo aparece marcado un campamento militar. ");
+                imprimir("Después de unas horas siguiendo el mapa ves a lo lejos humo. Debe ser el campamento");
                 opcion = scan(1);
                 if (opcion == 1) {
                     cinematica("campamento");
-                    System.out.println(rojo+"Te acercas a los militares y te disparan"+reset);
+                    imprimir(rojo+"Vas hacia el campamento, pero antes de que te des cuenta te disparan en el pecho. Mueres"+reset);
+                    return;
                 }
             }
         } else if (opcion == 2) {
-            System.out.println("Dejas el mapa");
-            System.out.println("Sigues andando por el bosque y te encuentras un campamento militar, ¿te acercas?");
-            System.out.println("1. Acercarte");
-            System.out.println("2. Alejarte");
-            opcion = scan(1,2);
-            if (opcion == 1) {
-                cinematica("campamento");
-                System.out.println(rojo+"Te acercas a los militares y te disparan"+reset);
-            }
-            if (opcion == 2) {
-                System.out.println("No te fias y te alejas");
-                System.out.println("Te encuentras con un encapuchado al andar un rato");
-                System.out.println("Te encuentras dos caminos");
-                System.out.println("1. Ciudad");
-                System.out.println("2. bosque");
-                opcion = scan(1,2);
-                if (opcion == 1){
-                    ciudad();
-                }
-                else if(opcion == 2){
-                    bosque();
-                }
-            }
+            imprimir("Dejas el mapa, estaría feo robar las cosas de un muerto.");
+            militares();
         }
     }
 
 
     //FUNCIONES HISTORIA PARTE2
     static void pueblo(){
+        cinematica("pueblo");
         if(saqueador==false) {
-            puebloLlegar = true;
-            cinematica("pueblo");
-            System.out.println("Llegais a un pueblo y decidis registrar las casas");
-            System.out.println("1. Casa izquierda");
-            System.out.println("2. Casa derecha");
-            opcion = scan(1, 2);
-            if (opcion == 1) {
-                cinematica("casa");
-            } else if (opcion == 2) {
-                cinematica("casa");
-                inventario[2][1] = (int) inventario[2][1] + 5;
-                System.out.println("Un zombie mata a Bill");
-                System.out.println("Te mandan a una tienda de la ciudad a por suministros");
-                tienda();
+            if(puebloLlegar==false) {
+                puebloLlegar = true;
+                imprimir("Llegais a un pueblo y decidis registrar las casas");
+                imprimir("1. Casa izquierda");
+                imprimir("2. Casa derecha");
+                opcion = scan(1, 2);
+                if (opcion == 1) {
+                    cinematica("casa");
+                    imprimir("Te mandan a una tienda de la ciudad a por suministros");
+                    compañero("bill");
+                    tienda();
+                } else if (opcion == 2) {
+                    cinematica("casa");
+                    obtener("balas",5);
+                    imprimir("Un zombie mata a Bill");
+                    imprimir("Te mandan a una tienda de la ciudad a por suministros");
+                    tienda();
+                }
+            }
+            if(puebloLlegar==true){
+                imprimir("LLegas al pueblo y dejas los suministros");
+                imprimir("Escuchas disparos, hay saqueadores");
+                combate("persona");
+                imprimir("¿A donde vas?");
+                imprimir("1. Plaza del pueblo");
+                imprimir("2. Entrada del pueblo");
+                opcion = scan(1,2);
+                if(opcion == 1){
+                    combate("encapuchado");
+                    imprimir(verde+"Despues de un largo combate, consigues matar al encapuchado. Los saqueadores huyen despavoridos."+reset);
+                    System.exit(0);
+                }
+                else if(opcion == 2){
+                    combate("persona");
+                    imprimir("Conseguis eliminar a los saqueadores de la entrada, pero se escuchan gritos en la plaza");
+                    combate("encapuchado");
+                    imprimir(verde+"Despues de un largo combate, consigues matar al encapuchado. Los saqueadores huyen despavoridos."+reset);
+                    System.exit(0);
+                }
+            }
+        } else if (saqueador==true){
+            imprimir("Llegais al pueblo de noche y entrais por la fuerza");
+            compañero("encapuchado");
+            combate("persona");
+            imprimir(rojo+"");
+            imprimir("Hay una bifurcación, por donde vas");
+            imprimir("1. Calle principal");
+            imprimir("2. Calle secundaria");
+            opcion = scan(1,2);
+            if (opcion == 1){
+                combate("persona");
+            }
+            else if(opcion == 2){
+                obtener("balas",5);
+                combate("persona");
             }
         }
     }
 
     //FUNCIONES HISTORIA SECUNDARIAS
+    static void imprimir(String texto){
+        String[] palabras_moradas = {"zombies","zombie","zomblin", "blindado"};
+        for(String palabra : palabras_moradas){
+            texto = texto.replaceAll("(?i)(\\b"+palabra+"\\b)", morado + "$1" + reset);
+        }
+        String[] palabras_rojas = {"saqueadores", "encapuchado", "cadaveres", "cadaver", "muerto"};
+        for(String palabra : palabras_rojas){
+            texto = texto.replaceAll("(?i)(\\b"+palabra+"\\b)", rojo + "$1" + reset);
+        }
+        String[] palabras_militares = {"militar", "militares", "oxidada", "campamento", "mapa"};
+        for(String palabra : palabras_militares){
+            texto = texto.replaceAll("(?i)(\\b"+palabra+"\\b)", marron + "$1" + reset);
+        }
+
+        System.out.println(texto);
+    }
+
     static boolean ahorcado() {
         String palabras[] = {"alfombra", "comida", "java", "edificios", "sandia","girafa"};
         Random rand =  new Random();
@@ -432,7 +483,7 @@ public class Proyecto {
 
         int eleccion = rand.nextInt(palabras.length);
         String solucion = palabras[eleccion];
-        System.out.println(palabras[eleccion]);
+        imprimir(palabras[eleccion]);
 
         char averiguar[] = new char[solucion.length()];
         int longitud = solucion.length();
@@ -463,38 +514,174 @@ public class Proyecto {
 
     static void tienda(){
         cinematica("tienda");
-        System.out.println("Entras en la tienda, hay zombies ¿Percha, barra de metal?");
-        System.out.println("1. Percha");
-        System.out.println("2. Barra de metal");
-        opcion = scan(1,2);
-        if (opcion == 1) {
-            cinematica("percha");
-            armas[2][0] = true;
-            if((boolean)armas[2][0]==true) {
-                combate("zombie");
-                if(puebloLlegar){
-
+        if(tiendaLlegar==false) {
+            tiendaLlegar=true;
+            imprimir("En cuanto pones un pie dentro de la tienda escuchas dos zombies en la habitación de al lado.");
+            imprimir("Ves dos objetos en una mesa. Parecen una percha y una barra de metal bastante oxidada");
+            imprimir("¿Que eliges?");
+            imprimir("1. Percha");
+            imprimir("2. Barra de metal");
+            opcion = scan(1, 2);
+            if (opcion == 1) {
+                cinematica("percha");
+                equipar("percha");
+                if ((boolean) armas[2][0] == true) {
+                    combate("zombie");
+                    if (puebloLlegar){
+                        pueblo();
+                    }
+                    else{
+                        ciudad();
+                    }
+                }
+            } else if (opcion == 2) {
+                cinematica("barra de metal");
+                equipar("barra de metal");
+                if ((boolean) armas[2][1] == true) {
+                    imprimir(rojo + "Cuando intentas pegar el primer golpe con la barra de metal, se parte en dos. Intentas alcanzar algo para que defenderte pero eres devorado por los zombies" + reset);
                 }
             }
         }
-        else if (opcion == 2) {
-            cinematica("barra de metal");
-            armas[2][1] = true;
-            if((boolean)armas[2][1]==true) {
-                System.out.println(rojo + "te matan los zombies" + reset);
+        else if(tiendaLlegar==true&&puebloLlegar==true){
+            imprimir("Ves los cadaveres de zombies que mataste antes, te limitas a coger los suministros e irte.");
+            pueblo();
+        }
+        else if(tiendaLlegar==true){
+            imprimir("Ves los cadaveres de zombies que mataste antes, decides salir a la calle.");
+            ciudad();
+        }
+    }
+
+    static void edificio(){
+        cinematica("edificio");
+        if(edificioLlegar==false) {
+            edificioLlegar=true;
+            if (encapuchadoVisto == false) {
+                imprimir("Estás a las puertas del edificio más alto de la ciudad, las vistas serán buenas desde la azotea.");
+                scan(1);
+                imprimir("Te encuentras con un encapuchado mirandote fijamente");
+                imprimir("Necesito a gente avispada para un trabajito. Si adivinas en lo que estoy pensado te dejaré unirte a mi equipo");
+            } else {
+                imprimir("El edificio del que te habló aquel encapuchado. Decides subir y hablar con él");
+                scan(1);
+                imprimir("Te encuentras al encapuchado de antes mirandote fijamente");
+                imprimir("- Qué, te ha picado la curiosidad. Mira, estoy reuniendo a un equipo. Si adivinas lo que estoy pensando dejaré que te unas.");
+            }
+            if (ahorcado()) {
+                imprimir("- Ja, bien hecho.");
+                imprimir("- Qué, ¿aceptas mi propuesta?");
+                imprimir("1. Aceptar");
+                imprimir("2. Combatir");
+                opcion = scan(1, 2);
+                if (opcion == 1) {
+                    imprimir ("Decides unirte a su grupo de saqueadores" + reset);
+                    saqueador = true;
+                    imprimir(rojo + "");
+                    pueblo();
+                } else if (opcion == 2) {
+                    imprimir("- Tenías potencial, una lástima que tenga que matarte");
+                    combate("encapuchado");
+                    imprimir("Consigues acabar con el encapuchado y vas hacia la salida. Peor al girarte para ver el cadaver una ultima vez, \n ves que ha desaparecido. Tienes el presentimiento de que no será la última vez que le veas");
+                    imprimir("Decides salir a la calle");
+                    ciudad();
+                }
+            } else {
+                imprimir("- Solo acepto a los mejores, y parece que tú no eres uno de ellos.");
+                imprimir(rojo + "El encapuchado te mata a sangre fría" + reset);
             }
         }
+        else if(edificioLlegar==true){
+            imprimir("Decides subir de nuevo para otear el horizonte.");
+            imprimir("Pasan un par de horas por lo que decides marcharte antes de que vengan zombies");
+            ciudad();
+        }
+    }
+
+    static void militares(){
+            if(militaresLlegar==false) {
+                imprimir("Sigues andando por el bosque y te encuentras un campamento militar, ¿te acercas?");
+            }
+            else{
+                imprimir("Vuelves al campamento militar ¿te acercas?");
+            }
+            imprimir("1. Acercarte");
+            imprimir("2. Alejarte");
+            opcion = scan(1, 2);
+            if (opcion == 1) {
+                cinematica("campamento");
+                imprimir(rojo + "Te acercas a los militares y antes de que te puedas explicar recibes un disparo" + reset);
+            }
+            if (opcion == 2) {
+                if(militaresLlegar==false) {
+                    imprimir("No te fias y te alejas");
+                }
+                else{
+                    imprimir("Te alejas sin ser visto");
+                }
+                if(encapuchadoVisto==false) {
+                    imprimir("Escuchas un ruido detras tuya y al girarte ves a un encapuchado.");
+                    imprimir("- Si estas cansado de andar por ahí, reunete conmigo en la azotea del edificio más alto de la ciudad.");
+                    encapuchadoVisto=true;
+                }
+                else{
+                    imprimir("Ves a alguien a lo lejos, podría ser un zombie, o el encapuchado de antes. Decides apurar el paso");
+                }
+                if(militaresLlegar==false) {
+                    imprimir("Tras una larga caminata te encuentras con una bifurcación, un cartel indica que el camino \n izquierdo lleva a la ciudad mientras que el otro vuelve al inicio del bosque ");
+                    militaresLlegar=true;
+                }
+                else{
+                    imprimir("Te vuelves a encontrar con la bifurcación de antes, ¿por donde continuas?");
+                }
+                imprimir("1. Ciudad");
+                imprimir("2. bosque");
+                opcion = scan(1, 2);
+                if (opcion == 1) {
+                    ciudad();
+                } else if (opcion == 2) {
+                    bosque();
+                }
+            }
+    }
+
+
+
+    //FUNCIONES INVENTARIO
+
+    static void equipar(String nombre) {
+        nombre = nombre.toLowerCase();
+        for (int i = 0; i < armas[0].length; i++) {
+            if (((String) armas[0][i]).equals(nombre)) {
+                armas[2][i] = true;
+                imprimir("Has equipado: " + nombre);
+                return;
+            }
+        }
+        imprimir("Arma no encontrada: " + nombre);
+    }
+
+    static void obtener(String nombre, int cantidad) {
+        for (int i = 0; i < inventario[0].length; i++) {
+            if (((String) inventario[0][i]).equalsIgnoreCase(nombre)) {
+                inventario[1][i] = true;
+                inventario[2][i] = (int)inventario[2][i]+cantidad;
+                imprimir("Obtienes: " + cantidad + nombre);
+                return;
+            }
+        }
+        imprimir("Objeto no encontrada: " + nombre);
     }
 
 
 
     //FUNCIONES COMBATE
+
     static void combate(String tipo){
         if(combatir(tipo)){
-            System.out.println(verde+"Sobrevives, por ahora..."+reset);
+            imprimir(verde+"Sobrevives, por ahora..."+reset);
         }
         else{
-            System.out.println(rojo+"Has muerto"+reset);
+            imprimir(rojo+"Has muerto"+reset);
             System.exit(0);
         }
     }
@@ -506,14 +693,14 @@ public class Proyecto {
 
         while (true) {
             while(vida_e >0&&vida_jug>0) {
-                System.out.println("");
-                System.out.println(tipo_e+": "+vida_e);
-                System.out.println("Vida: "+vida_jug);
-                System.out.println("1. Combate cuerpo a cuerpo");
-                System.out.println("2. Pistola");
-                System.out.println("3. Inventario");
+                imprimir("");
+                imprimir(tipo_e+": "+vida_e);
+                imprimir("Vida: "+vida_jug);
+                imprimir("1. Combate cuerpo a cuerpo");
+                imprimir("2. Pistola");
+                imprimir("3. Inventario");
 
-                int opcion = sc.nextInt();
+                int opcion = scan(1,2,3);
 
                 if (opcion == 1) {
                     vida_e -= 10+daño_arma;
@@ -523,26 +710,72 @@ public class Proyecto {
                         inventario[2][1] = (int)inventario[2][1]-1;
                         vida_e -= 30;
                     } else {
-                        System.out.println("No tienes balas");
+                        imprimir("No tienes balas");
                     }
                 }
                 if (opcion == 3) {
-                    System.out.println("Balas: " + inventario[2][1]);
-                    continue;
+                    imprimir("Balas: " + inventario[2][1]);
+                    imprimir("Vendas: " +  inventario[2][2]);
+                    imprimir("1. Usar vendas");
+                    imprimir("2. Volver");
+                    opcion = scan(1,2);
+                    if(opcion == 1) {
+                        if ((int) inventario[2][2] > 0){
+                            inventario[2][2] = (int) inventario[2][2] - 1;
+                            vida_jug += 30;
+                        }
+                        else{
+                            imprimir("No tienes vendas");
+                            continue;
+                        }
+                    }
+                    if(opcion == 2){
+                        continue;
+                    }
                 }
-                if(vida_e<0){
+                if(vida_e<=0){
                     return true;
                 }
+                combate_compañero(tipo);
+                dialogosCombate(tipo);
                 ia_enem(tipo);
-                if(vida_jug<0){
+                if(vida_jug<=0){
                     return false;
                 }
             }
         }
     }
 
+    static void compañero(String nombre){
+        for(int i = 0; i < compañeros[0].length; i++) {
+            String comprobador = (String) compañeros[0][i];
+            if(comprobador.equalsIgnoreCase(nombre)&&(boolean)compañeros[1][i]==false){
+                compañeros[1][i] = true;
+                imprimir( comprobador + " decide ir contigo");
+            }
+        }
+    }
+
+    static void combate_compañero(String tipo){
+        String nombre = "";
+        for(int i = 0; i<compañeros[1].length; i++){
+            if((boolean)compañeros[1][i]==true){
+                nombre=(String)compañeros[0][i];
+            }
+        }
+        int eleccion = rand.nextInt(1,3);
+        if(eleccion==1){
+            vida_e -= 10;
+            imprimir(nombre+" hace 10 de daño a "+tipo);
+        }
+        if(eleccion==2){
+            imprimir(nombre+" te cura 10 de vida");
+            vida_jug += 10;
+        }
+    }
+
     static void stats_arma(){
-        for(int i=0;i<armas.length;i++){
+        for(int i=0;i<armas[0].length;i++){
             if((boolean)armas[2][i]==true){
                 daño_arma=(int)armas[1][i]/10;
             }
@@ -560,6 +793,7 @@ public class Proyecto {
         else if(tipo.equals("persona")){
             tipo_e = (String) enemigos[0][3];
             vida_e = (int) enemigos[1][3];
+
             daño_e = (int) enemigos[2][3];
             tiempo_esq = (int) enemigos[3][3];
         }
@@ -575,56 +809,69 @@ public class Proyecto {
         int eleccion = rand.nextInt(1,3);
         if(tipo.equals("zombie")) {
             if (eleccion == 1) {
-                System.out.println("Mordisco");
+                imprimir("Mordisco");
                 esquivar();
                 if (tarde == false) {
-                    System.out.println("Esquivaste con exito");
+                    imprimir("Esquivaste con exito");
                 } else {
-                    System.out.println("No esquivaste");
+                    imprimir("No esquivaste");
                     vida_jug -= daño_e + 10;
                 }
             }
             if (eleccion == 2) {
-                System.out.println("Arañazo");
+                imprimir("Arañazo");
                 esquivar();
                 if (tarde == false) {
-                    System.out.println("Esquivaste con exito");
+                    imprimir("Esquivaste con exito");
                 } else {
-                    System.out.println("No esquivaste");
+                    imprimir("No esquivaste");
                     vida_jug -= daño_e;
                 }
             }
         }
         if(tipo.equals("persona")||tipo.equals("encapuchado")) {
             if (eleccion == 1) {
-                    System.out.println("Disparo");
-                    vida_jug -= daño_e + 10;
+                    imprimir("Disparo");
+                    vida_jug -= 20;
             }
             if (eleccion == 2) {
-                System.out.println("Golpe");
+                imprimir("Golpe");
                 esquivar();
                 if (tarde == false) {
-                    System.out.println("Esquivaste con exito");
+                    imprimir("Esquivaste con exito");
                 } else {
-                    System.out.println("No esquivaste");
-                    vida_jug -= daño_e;
+                    imprimir("No esquivaste");
+                    vida_jug -= daño_e+10;
                 }
             }
         }
     }
 
+    static void dialogosCombate(String tipo){
+        if(tipo.equals("zombie")){
+            if(vida_e<40){
+                imprimir(morado+"Cerebrooooos"+reset);
+            }
+        }
+        if(tipo.equals("encapuchado")){
+            if(vida_e<70){
+                imprimir(rojo+"..."+reset);
+            }
+        }
+    };
+
     static void esquivar(){
         tarde = true;
-        boolean[] reaccionado = {false};
+        boolean[] resultadoDecidido = {false};
         Timer tim = new Timer();
 
-        System.out.println("");
-        System.out.println("ESQUIVA ( X )");
+        imprimir("");
+        imprimir("ESQUIVA ( X )");
         TimerTask tarea = new TimerTask() {
             public void run() {
-                if(!reaccionado[0]) {
+                if(!resultadoDecidido[0]) {
                     tarde = true;
-                    reaccionado[0] = true;
+                    resultadoDecidido[0] = true;
                     tim.cancel();
                 }
             }
@@ -633,13 +880,13 @@ public class Proyecto {
         sc.nextLine();
         String tecla = sc.nextLine();
 
-        if(!reaccionado[0]) {
+        if(!resultadoDecidido[0]) {
             if (tecla.equals("x")) {
                 tarde = false;
             } else {
                 tarde = true;
             }
-            reaccionado[0] = true;
+            resultadoDecidido[0] = true;
             tarea.cancel();
             tim.cancel();
         }
